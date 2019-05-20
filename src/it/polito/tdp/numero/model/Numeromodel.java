@@ -1,23 +1,35 @@
 package it.polito.tdp.numero.model;
 
 import java.security.InvalidParameterException;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 public class Numeromodel {
-
+	
+	//private List<Integer> tentativi;
+	private Set<Integer> tentativi;
 	private final int NMAX = 100;
 	private final int TMAX = 8;
 
 	private int segreto;
-	private int tentativiFatti;
+	//private int tentativiFatti;
 	private boolean inGioco = false;
-	//private IntegerProperty tentativiFatti;
+	//UTILIZZO DELLE PROPERTY PER PASSARE DA MODELLO A VISTA SENZA PASSARE DAL CONTROLLER
+	private IntegerProperty tentativiFatti;
 	
 	
 	//COSTRUTTORE
 	public void NumeroModel() {
 		inGioco = false;
+		//è necessario fare una new perchè tentativiFatti è diventato una Property e quindi un oggetto
+		tentativiFatti = new SimpleIntegerProperty();
+		//tentativi = new LinkedList<Integer>(); 
+		tentativi = new HashSet<Integer>();
 	}
 	
 	//INIZIA UNA NUOVA PARTITA
@@ -25,7 +37,10 @@ public class Numeromodel {
 		
 		inGioco = true;
 		this.segreto = (int) (Math.random() * NMAX) + 1;
-		this.tentativiFatti = 0;
+		//this.tentativiFatti=0;
+		this.tentativiFatti.set(0);
+		//this.tentativi = new LinkedList<Integer>();
+		tentativi = new HashSet<Integer>();
 	}
 	
 	//ANALISI DEL TENTATIVO
@@ -44,9 +59,13 @@ public class Numeromodel {
 		}
 		
 		//GESTIONE TENTATIVO
-		this.tentativiFatti++;
+		//this.tentativiFatti++;
+		this.tentativiFatti.set(this.tentativiFatti.get()+1);
+		//this.tentativi.add(t);
+		this.tentativi.add(new Integer(t));
 		
-		if(this.tentativiFatti == this.TMAX){
+		//if(this.tentativiFatti == this.TMAX){
+		if(this.tentativiFatti.get() == this.TMAX){
 			//la partita è finita perchè ho esaurito i tentativi
 			this.inGioco = false; 
 		}
@@ -68,7 +87,12 @@ public class Numeromodel {
 	public boolean tentativoValido(int t) {
 		if(t<1 || t>NMAX) {
 			return false;
-		} else return true;
+		} else {
+			if(this.tentativi.contains(t))
+			//if(this.tentativi.contains(new Integer(t)))
+				return false;
+			else return true;
+		}
 		
 	}
 
@@ -76,19 +100,33 @@ public class Numeromodel {
 		return segreto;
 	}
 
-	public int getTentativiFatti() {
+	/*public int getTentativiFatti() {
 		return tentativiFatti;
-	}
+	}*/
 
 	public boolean isInGioco() {
 		return inGioco;
-	}
+	} 
 
 	public int getTMAX() {
 		return TMAX;
 	}
 	
+	public int getNMAX() {
+		return NMAX;
+	}
+
+	public final IntegerProperty tentativiFattiProperty() {
+		return this.tentativiFatti;
+	}
 	
+	public final int getTentativiFatti() {
+		return this.tentativiFattiProperty().get();
+	}
+	
+	public final void setTentativiFatti(final int tentativiFatti) {
+		this.tentativiFattiProperty().set(tentativiFatti);
+	}
 }
 
 
